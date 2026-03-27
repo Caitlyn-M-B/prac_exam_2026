@@ -1,5 +1,5 @@
 ## Gen711/811 Practical Exam 2026 (40 scaled points)
-## NAME: MYNAME
+## NAME: Caitlyn Bailey
 
 Exam Instructions:
 - Make sure to paste all the commands that you use below each of the tasks.
@@ -19,34 +19,78 @@ Hints:
 
 1. Use an absolute path to change your current working directory to the 'prac_exam' directory that you just cloned (2 points). 
   
+  Starting in the home directory:
+  ```cd prac_exam_2026/```
   
 2. From 'prac_exam' directory, make the following directory structure in a single command: `data/untrimmed_fastq` (2 points, -1 point if you need to use 2 commands for this. Hint: There is a flag/option that lets you create nested directories all at once.)
 
+```mkdir -p data/untrimmed_fastq```
 
 3. Copy the two fastq files in the `/tmp/Gen711-811_data` directly into your `untrimmed_fastq` directory without changing your current directory. (2 points, partial credit if you need to change directories first. Multiple correct answers)
-  
+
+Starting in the prac_exam_2026 directory:
+```cp -r /tmp/Gen711-811_data/ data/untrimmed_fastq/```
+copied Gen711-811 directory into untrimmedfastq directory.
+```mv data/untrimmed_fastq/Gen711-811_data/*fastq.gz data/untrimmed_fastq/```
+moved fastqs from Gen711-811 into untrimmed_fastq.
+
 4. List all the hidden files in this repo. Paste the command below (2 points)
+
+```ls --all```
+The hidden files are: ```. .. .git```
 
 5. Use a relative path to change your current working directory to the `untrimmed_fastq` directory. (2 points)
 
+```cd data/untrimmed_fastq/```
 
 6. These are paired-end FASTQ files from an *E. coli* long-term evolution experiment. To confirm the files look ok, view one of them and paste the top 4 lines below. (4 points, Hint: These files are gzip-compressed. Multiple correct answers)
 
-
+```gunzip *.fastq.gz``` unzipped files
+```
+head -4  SRR2584863_2.fastq
+@SRR2584863.1 HWI-ST957:244:H73TDADXX:1:1101:4712:2181/2
+GGCGACATTACTGACCCGCNNNNNNNNNNNNNNNNNNNCGACNNNNNNNNNNNNNNNNNCCTGATNNNNNNNNNNNNNNNTCAGNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN
++
+<<<??@??@??@@?@@??@###################################################################################################################################
+```
+Head to show first four lines of the file
 
 7. How large (file size) are the two uncompressed fastq files? Use a single command with appropriate options to show the file sizes in a human-readable format (e.g., MB). Paste the command and output below. (2 points)
 
-
+```
+ls -lrth
+total 1.5G
+-rw-r--r--. 1 cmb1451 domain users    0 Mar 27 15:38 fastq
+-rw-r--r--. 1 cmb1451 domain users 545M Mar 27 15:46 SRR2584863_2.fastq
+-rw-r--r--. 1 cmb1451 domain users 972M Mar 27 15:46 SRR2584866_2.fastq
+drwxr-xr-x. 2 cmb1451 domain users   10 Mar 27 15:55 Gen711-811_data
+```
 
 8. For each fastq, how many quality score lines have the '@' symbol in them? To answer this, use one line of piped bash commands for each fastq, and the output should be a single number.(2 points) 
 
+```
+grep '@' SRR2584863_2.fastq | grep -v 'SRR' | wc -l
+1386707
+```
+```
+grep '@' SRR2584866_2.fastq | grep -v 'SRR' | wc -l
+2325776
+```
 
+9. How many reads have 15 or more uncalled bases (`NNNNNNNNNNNNNNN`) in `SRR2584863_2.fastq`? Count WITHOUT making a new file (4 points)
 
-9. How many reads have 15 or more uncalled bases (`NNNNNNNNNNNNNNN`) in `SRR2584863_1.fastq`? Count WITHOUT making a new file (4 points)
-
-
+Each read is its own line/word, so wc can count the cases for us.
+```
+grep 'NNNNNNNNNNNNNNN' SRR2584863_2.fastq | wc
+   3015    3015  455265
+```
 
 10. Make a single fasta file from the two fastqs using the reads found in the question above, and their respective info lines. Name the new file 'badreads.fasta' in the 'untrimmed_fastq' directory.  (4 points)
+
+```
+grep -B1 --no-group-separator 'NNNNNNNNNNNNNNN' SRR2584863_2.fastq > badreads.fasta
+grep -B1 --no-group-separator 'NNNNNNNNNNNNNNN' SRR2584866_2.fastq >> badreads.fasta
+```
 
 Hint: the first 4 lines of badreads.fasta should look similar (but maybe not exactly) to this:
 ```
@@ -59,20 +103,45 @@ TCCCCGGAGTCAGCAGGGTGNNNNNNNNNNNNNNNNNATACATNNNNNNNNNNNNNNNGTTTTTGNNNNNNNNNNNNNNG
 
 11. Activate the conda 'genomics' environment that contains `fastqc` and confirm where `fastqc` is installed. Paste the command and its output below. (2 points)
 
+```
+conda list | grep fastqc
+fastqc                    0.12.1               hdfd78af_0    bioconda
+```
 
+12. Run `fastqc` on `SRR2584863_2.fastq`. Then, create a `results/fastqc_untrimmed_reads` directory and move both the `.zip` and `.html` output files into it — all without leaving your `untrimmed_fastq` directory. Paste all commands used. (4 points)
 
-12. Run `fastqc` on `SRR2584863_1.fastq`. Then, create a `results/fastqc_untrimmed_reads` directory and move both the `.zip` and `.html` output files into it — all without leaving your `untrimmed_fastq` directory. Paste all commands used. (4 points)
-
-
+```
+fastqc SRR2584863_2.fastq
+mkdir -p  results/fastqc_untrimmed_reads
+mv SRR2584863_2_fastqc.zip results/fastqc_untrimmed_reads/
+mv SRR2584863_2_fastqc.html results/fastqc_untrimmed_reads/
+```
 
 13. Without changing directories, what is the 100th line of the file `SRR2584863_1.trim.fastq` in your `trimmed_fastq` directory? (2 points)
 
-
-
+No trimmed fastq, used SRR258463_2.fastq
+```head -100 SRR2584863_2.fastq```
+The 100th line is the last to print.
+```@@@FFFFDDFFHHJJIIGIJJGIHIJGGJJGGIIGHHHGEEHGIIGHIGIDGIBHHGHGFFFFFEDEEDD?BBD<A:@A>:3@>?(2989>:(4(45&000::@<A(8(&.09>1>@:::>CAA>>B>><55:(:@8?B###########```
 
 14. Run `md5sum` on `SRR2584863_1.fastq`. Then run it again, redirecting the output to a new file called `my_md5sums.txt`. Next, run `md5sum` on `SRR2584863_2.fastq` and **append** it to `my_md5sums.txt`. Finally, append your name to the end of `my_md5sums.txt`. Paste all commands used. (4 points)
 
+```
+md5sum SRR2584863_2.fastq
+681df49ee478ba8b51998c81a776aaba  SRR2584863_2.fastq
+md5sum SRR2584863_2.fastq > my_md5sums.txt
+md5sum SRR2584866_2.fastq >> my_md5sums.txt
+echo Caitlyn Bailey >> my_md5sums.txt
+head my_md5sums.txt
+681df49ee478ba8b51998c81a776aaba  SRR2584863_2.fastq
+6aa101ad0c9625763cd765ee56bacecd  SRR2584866_2.fastq
+Caitlyn Bailey
+```
 
-15. Push all of the new files that you created to your github repo using vscode's github side bar (4 points). 
+15. Push all of the new files that you created to your github repo using vscode's github side bar (4 points).
+
+Removed bad reads
+```rm badreads.fasta```
+
 ---
 
